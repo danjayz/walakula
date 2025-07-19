@@ -16,8 +16,10 @@ exports.register = async (req, res) => {
             email,
             password: hashedPassword,
         });
+        console.log("New user created:", newUser);
         res.status(201).json({ message: "User created", userId: newUser._id });
     } catch (error) {
+        console.error("Error creating user:", error);
         res.status(400).json({ error: error.message });
     }
 };
