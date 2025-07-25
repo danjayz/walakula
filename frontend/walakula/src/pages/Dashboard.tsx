@@ -1,10 +1,13 @@
+import type { ChangeEvent } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Box, CircularProgress, Typography } from "@mui/material";
+import FileTable from "../components/FileTable";
 import axios from "axios";
 
 function Dashboard() {
-    const [files, setFiles] = useState<File | null>(null);
+    const [files, setFiles] = useState<any[]>([]); // For fetched files
+    const [selectedFile, setSelectedFile] = useState<File | null>(null); // For upload
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -29,7 +32,7 @@ function Dashboard() {
                 }
             );
             if (response.status === 200) {
-                setFiles(response.data);
+                setFiles(response.data || []);
             } else {
                 console.error("Failed to fetch files");
             }
@@ -38,23 +41,21 @@ function Dashboard() {
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
-        if (selectedFile) {
-            setFiles(selectedFile);
-        }
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setSelectedFile(file);
     };
 
     const handleFileUpload = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!files) {
+        if (!selectedFile) {
             setError("Please select a file to upload.");
             return;
         }
 
         const formData = new FormData();
-        formData.append("file", files);
+        formData.append("file", selectedFile);
 
         try {
             setUploading(true);
@@ -71,7 +72,7 @@ function Dashboard() {
                 }
             );
             if (response.data.status === 201) {
-                setFiles(null);
+                setSelectedFile(null);
                 fetchFiles();
             } else {
                 setError(
@@ -116,7 +117,7 @@ function Dashboard() {
                     variant="contained"
                     color="primary"
                     sx={{ ml: 2 }}
-                    disabled={uploading || !files}
+                    disabled={uploading || !selectedFile}
                 >
                     {uploading ? (
                         <CircularProgress size={24} color="inherit" />
@@ -131,36 +132,7 @@ function Dashboard() {
             <Typography variant="h6" sx={{ mb: 2 }}>
                 Your Files
             </Typography>
-            <Box>
-                {!files && <Typography>No files uploaded yet</Typography>}
-                {Array.isArray(files) &&
-                    files.map((file) => (
-                        <Box
-                            key={file._id}
-                            sx={{
-                                bofilesrder: "1px solid #ddd",
-                                padding: 2,
-                                mb: 2,
-                            }}
-                        >
-                            <Typography>{file.originalName}</Typography>
-                            <Button
-                                variant="contained"
-                                href={`http://localhost:5004/${file.fileName}`}
-                                download
-                            >
-                                Download
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                onClick={() => handleFileDelete(file._id)}
-                            >
-                                Delete
-                            </Button>
-                        </Box>
-                    ))}
-            </Box>
+            <FileTable files={files} handleFileDelete={handleFileDelete} />
         </div>
     );
 }

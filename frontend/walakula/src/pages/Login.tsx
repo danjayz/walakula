@@ -9,6 +9,7 @@ import {
     Container,
     CircularProgress,
 } from "@mui/material";
+import { useUser } from "../contexts/UserContext";
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -16,6 +17,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { login } = useUser();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +30,7 @@ function Login() {
                 { headers: { "Content-Type": "application/json" } }
             );
             if (response.status === 200) {
-                localStorage.setItem("token", response.data.token);
+                login(response.data.token);
                 navigate("/dashboard");
             } else {
                 setError(
