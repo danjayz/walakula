@@ -22,7 +22,11 @@ exports.uploadFile = async (req, res) => {
             size: file.size,
         });
 
-        res.json({ message: "File uploaded successfully", file: newFile });
+        res.json({
+            message: "File uploaded successfully",
+            file: newFile,
+            status: 201,
+        });
     });
 };
 
