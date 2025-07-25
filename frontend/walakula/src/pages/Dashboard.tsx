@@ -86,6 +86,19 @@ function Dashboard() {
         }
     };
 
+    const handleFileDelete = async (fileId: string) => {
+        try {
+            await axios.delete(`http://localhost:5004/api/files/${fileId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            fetchFiles();
+        } catch (error) {
+            console.error("Error deleting file:", error);
+        }
+    };
+
     return (
         <div>
             <Typography variant="h4" gutterBottom>
@@ -131,12 +144,20 @@ function Dashboard() {
                             }}
                         >
                             <Typography>{file.originalName}</Typography>
-                            <a
+                            <Button
+                                variant="contained"
                                 href={`http://localhost:5004/${file.fileName}`}
                                 download
                             >
                                 Download
-                            </a>
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => handleFileDelete(file._id)}
+                            >
+                                Delete
+                            </Button>
                         </Box>
                     ))}
             </Box>
