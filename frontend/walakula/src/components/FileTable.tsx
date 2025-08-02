@@ -7,7 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 
-type File = {
+type FileData = {
     fileName: string;
     originalName: string;
     size: number;
@@ -16,7 +16,7 @@ type File = {
 };
 
 interface FileTableProps {
-    files: File[] | null;
+    files: FileData[] | null;
     handleFileDelete: (fileId: string) => void;
 }
 

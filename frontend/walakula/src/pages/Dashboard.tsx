@@ -1,16 +1,25 @@
-import type { ChangeEvent } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Box, CircularProgress, Typography } from "@mui/material";
 import FileTable from "../components/FileTable";
 import axios from "axios";
 
+type FileData = {
+    fileName: string;
+    originalName: string;
+    size: number;
+    uploadedAt: string;
+    _id: string;
+};
+
 function Dashboard() {
-    const [files, setFiles] = useState<any[]>([]); // For fetched files
-    const [selectedFile, setSelectedFile] = useState<File | null>(null); // For upload
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [files, setFiles] = useState<FileData[] | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    console.log(files);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -32,7 +41,7 @@ function Dashboard() {
                 }
             );
             if (response.status === 200) {
-                setFiles(response.data || []);
+                setFiles(response.data);
             } else {
                 console.error("Failed to fetch files");
             }
@@ -41,9 +50,11 @@ function Dashboard() {
         }
     };
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-        setSelectedFile(file);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        }
     };
 
     const handleFileUpload = async (e: React.FormEvent) => {
@@ -110,7 +121,7 @@ function Dashboard() {
                 <input
                     type="file"
                     onChange={handleFileChange}
-                    accept="image/*, .pdf, .docx" // You can restrict file types here
+                    accept="image/*, .pdf, .docx"
                 />
                 <Button
                     type="submit"
